@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0066B3" />
+  <title>Registon Word Duel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { registon: '#0066B3', ice: '#EFF7FC' }, boxShadow: { soft: '0 0px 0px rgba(0,70,130,.10)' } } } };
+  </script>
+  <style>
+    *{box-sizing:border-box} body{background:linear-gradient(135deg,#f6fbff 0%,#edf6fc 55%,#f8fbff 100%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .panel{background:rgba(255,255,255,.94);}
+    .btn{transition:transform .16s ease, background .16s ease}.btn:hover{transform:translateY(-1px)} .btn:active{transform:scale(.98)}
+    .choice:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #82c7f4;outline-offset:2px}
+    .correct{background:#dcfce7!important;border-color:#22c55e!important;color:#166534!important}.wrong{background:#fee2e2!important;border-color:#ef4444!important;color:#991b1b!important}
+    .fade-in{animation:fade .3s ease both}@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .pulse-dot{animation:pulse 1.4s infinite}@keyframes pulse{50%{opacity:.35}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+  </style>
+</head>
+<body class="min-h-screen text-slate-800">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-8">
+    <header class="flex flex-wrap items-center justify-between gap-4 mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-registon flex items-center justify-center shadow-lg shadow-blue-200" aria-label="Registon logo">
+          <svg viewBox="0 0 48 48" class="w-9 h-9" fill="none" aria-hidden="true">
+            <path d="M8 11c7-3 12-1 16 3v25c-4-4-9-6-16-3V11Z" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M40 11c-7-3-12-1-16 3v25c4-4 9-6 16-3V11Z" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M28 9c1-4 5-5 8-4-1 4-3 6-8 6M29 12c-1-3-4-4-7-3 1 3 3 5 7 5" stroke="#BFE8FF" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div><p class="text-registon font-black tracking-tight text-xl sm:text-2xl">REGISTON <span class="text-slate-700">WORD DUEL</span></p><p id="tagline" class="text-xs sm:text-sm text-slate-500">So‘z boyligingni sinab ko‘r</p></div>
+      </div>
+      <div class="flex items-center gap-2">
+        <label for="language" class="text-sm text-slate-500 hidden sm:inline" id="langLabel">Til</label>
+        <select id="language" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold shadow-sm">
+          <option value="uz">UZ · O‘zbek</option><option value="en">EN · English</option><option value="ru">RU · Русский</option>
+        </select>
+        <button id="themeBtn" class="btn rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm" title="Toggle theme" aria-label="Toggle dark mode">☾</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="setup" class="grid lg:grid-cols-[1.15fr_.85fr] gap-5 fade-in">
+        <div class="panel rounded-3xl p-5 sm:p-8">
+          <div class="inline-flex items-center gap-2 rounded-full bg-blue-50 text-registon px-3 py-1.5 text-xs font-bold mb-4"><span class="w-2 h-2 rounded-full bg-registon pulse-dot"></span><span id="eyebrow">2 O‘YINCHI · 1 G‘OLIB</span></div>
+          <h1 id="heroTitle" class="text-3xl sm:text-4xl font-black leading-tight tracking-tight text-slate-900">Bilimingni duelda<br/><span class="text-registon">isbotla!</span></h1>
+          <p id="heroText" class="mt-4 text-slate-500 leading-relaxed max-w-xl">Inglizcha so‘zlarni tez toping, ball to‘plang va do‘stingiz bilan bellashing.</p>
+          <div class="grid sm:grid-cols-2 gap-4 mt-7">
+            <div><label id="p1Label" for="player1" class="block text-sm font-bold mb-2">1-o‘yinchi</label><input id="player1" maxlength="22" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-registon" placeholder="Masalan, Ali" value="Player 1"/></div>
+            <div><label id="p2Label" for="player2" class="block text-sm font-bold mb-2">2-o‘yinchi</label><input id="player2" maxlength="22" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-registon" placeholder="Masalan, Vali" value="Player 2"/></div>
+          </div>
+          <div class="mt-6">
+            <p id="durationLabel" class="text-sm font-bold mb-3">O‘yin davomiyligi</p>
+            <div class="grid grid-cols-2 gap-3">
+              <button data-time="60" class="duration btn rounded-2xl border-2 border-registon bg-blue-50 text-registon p-4 text-left"><span class="block text-2xl font-black">60s</span><span id="oneMin" class="text-sm">1 daqiqa</span></button>
+              <button data-time="120" class="duration btn rounded-2xl border-2 border-slate-200 bg-white p-4 text-left"><span class="block text-2xl font-black">120s</span><span id="twoMin" class="text-sm">2 daqiqa</span></button>
+            </div>
+          </div>
+          <div class="mt-6">
+            <div><label id="translationLabel" for="translation" class="block text-sm font-bold mb-2">Tarjima tili</label><select id="translation" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3"><option value="uz">O‘zbekcha</option><option value="ru">Русский</option></select></div>
+          </div>
+          <button id="startBtn" class="btn mt-7 w-full rounded-2xl bg-registon text-white font-bold py-4 shadow-lg shadow-blue-200 hover:bg-blue-700">O‘yinni boshlash →</button>
+          <p id="rules" class="text-xs text-slate-400 mt-4 text-center">To‘g‘ri javob +5 ball · Noto‘g‘ri javob −5 ball · Tenglik ham mumkin</p>
+        </div>
+
+        <div class="space-y-5">
+          <div class="panel rounded-3xl p-5 sm:p-6">
+            <div class="flex items-center justify-between gap-3"><h2 id="wordsTitle" class="font-extrabold text-lg">So‘zlar bazasi</h2><span id="wordCount" class="text-xs font-bold text-registon bg-blue-50 px-2.5 py-1.5 rounded-full">0 words</span></div>
+            <p id="wordsHint" class="text-sm text-slate-500 mt-2">Har qatorda inglizcha so‘z, o‘zbekcha tarjima va ruscha tarjima kiriting.</p>
+            <textarea id="wordInput" rows="7" class="mt-4 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 font-mono text-sm leading-6" placeholder="English word | Uzbek translation | Russian translation"></textarea>
+            <div class="flex flex-wrap gap-2 mt-3">
+              <button id="saveWords" class="btn rounded-xl bg-blue-50 text-registon px-4 py-2.5 text-sm font-bold">Ro‘yxatni qo‘llash</button>
+              <label class="btn cursor-pointer rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold"><span id="importLabel">CSV/TXT yuklash</span><input id="fileInput" type="file" accept=".txt,.csv,.tsv" class="hidden"/></label>
+              <button id="demoBtn" class="btn rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold">Demo</button>
+            </div>
+            <p id="wordStatus" role="status" class="text-xs mt-3 text-slate-500">Format: English | Uzbek | Russian. Kamida 4 ta so‘z kerak.</p>
+          </div>
+          <div class="rounded-3xl bg-gradient-to-br from-registon to-blue-800 text-white p-6 shadow-soft">
+            <p id="tipLabel" class="text-blue-100 text-sm font-semibold">DUEL QOIDASI</p><h3 id="tipTitle" class="text-xl font-black mt-2">Tezlik + aniqlik</h3><p id="tipText" class="text-sm text-blue-50/90 mt-2 leading-relaxed">Har savolda 4 ta variantdan bittasini tanlang. Har bir o‘yinchining ballari alohida hisoblanadi.</p>
+            <div class="grid grid-cols-3 gap-2 mt-5 text-center"><div class="rounded-xl bg-white/10 p-3"><b class="block text-xl">+5</b><span id="correctLabel" class="text-xs text-blue-100">To‘g‘ri</span></div><div class="rounded-xl bg-white/10 p-3"><b class="block text-xl">−5</b><span id="wrongLabel" class="text-xs text-blue-100">Xato</span></div><div class="rounded-xl bg-white/10 p-3"><b class="block text-xl">4</b><span id="optionsLabel" class="text-xs text-blue-100">Variant</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="game" class="hidden fade-in">
+        <div class="grid sm:grid-cols-3 gap-3 mb-5">
+          <div class="panel rounded-2xl p-4"><p id="playerOneName" class="text-xs font-bold text-slate-500 uppercase tracking-wide">Player 1</p><div class="flex items-end justify-between mt-1"><span id="score1" class="text-3xl font-black text-registon">0</span><span id="turn1" class="text-xs text-slate-400"></span></div></div>
+          <div class="panel rounded-2xl p-4 text-center"><p id="timeLabel" class="text-xs font-bold text-slate-500 uppercase tracking-wide">Qolgan vaqt</p><div id="timer" class="text-3xl font-black mt-1 text-slate-900 tabular-nums">01:00</div><div class="mt-3 h-2 rounded-full bg-slate-100 overflow-hidden"><div id="timeBar" class="h-full bg-registon rounded-full w-full transition-all"></div></div></div>
+          <div class="panel rounded-2xl p-4"><p id="playerTwoName" class="text-xs font-bold text-slate-500 uppercase tracking-wide">Player 2</p><div class="flex items-end justify-between mt-1"><span id="score2" class="text-3xl font-black text-indigo-600">0</span><span id="turn2" class="text-xs text-slate-400"></span></div></div>
+        </div>
+        <div class="panel rounded-3xl p-5 sm:p-9 max-w-3xl mx-auto">
+          <div class="flex items-center justify-between gap-3"><span id="questionCounter" class="text-sm font-bold text-slate-500">Question 1</span><span id="activePlayer" class="rounded-full bg-blue-50 text-registon px-3 py-1.5 text-xs font-extrabold">Both players answer at once</span></div>
+          <div class="h-2 rounded-full bg-slate-100 mt-4 overflow-hidden"><div id="progress" class="h-full bg-registon rounded-full transition-all" style="width:0%"></div></div>
+          <div class="text-center py-8 sm:py-10"><p id="translatePrompt" class="text-sm text-slate-400 font-semibold mb-3">Choose the correct translation</p><h2 id="word" class="text-4xl sm:text-5xl font-black tracking-tight text-slate-900">apple</h2><button id="speakBtn" class="btn mt-3 inline-flex items-center gap-2 text-sm text-registon font-bold rounded-xl px-3 py-2 hover:bg-blue-50">🔊 <span id="listenLabel">Talaffuzni eshitish</span></button></div>
+          <div id="choices" class="grid md:grid-cols-2 gap-5"></div>
+          <div class="min-h-12 flex items-center justify-between gap-3 mt-5"><p id="feedback" aria-live="polite" class="text-sm font-bold"></p><button id="quitBtn" class="text-sm text-slate-400 hover:text-red-600 underline underline-offset-4">O‘yinni tugatish</button></div>
+        </div>
+      </section>
+
+      <section id="results" class="hidden fade-in max-w-3xl mx-auto">
+        <div class="panel rounded-3xl p-6 sm:p-10 text-center">
+          <div id="trophy" class="text-5xl mb-3">🏆</div><p id="resultEyebrow" class="text-xs uppercase tracking-[.2em] font-black text-registon">MATCH COMPLETE</p><h2 id="resultTitle" class="text-3xl sm:text-4xl font-black mt-3">We have a winner!</h2><p id="resultSub" class="text-slate-500 mt-2">Great work, both players.</p>
+          <div id="winnerCard" class="rounded-2xl bg-blue-50 border border-blue-100 p-5 mt-7"><p id="winnerLabel" class="text-sm font-semibold text-slate-500">G‘olib</p><p id="winnerName" class="text-2xl font-black text-registon mt-1">Player 1</p></div>
+          <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200 text-left"><div class="grid grid-cols-[1fr_auto_auto] gap-3 bg-slate-50 px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-500"><span id="tablePlayer">O‘yinchi</span><span id="tableScore">Ball</span><span id="tableAccuracy">Aniqlik</span></div><div id="leaderboard"></div></div>
+          <div class="flex flex-col sm:flex-row gap-3 mt-7"><button id="againBtn" class="btn flex-1 rounded-xl bg-registon text-white font-bold py-3.5">Yana o‘ynash ↻</button><button id="homeBtn" class="btn flex-1 rounded-xl border border-slate-200 bg-white font-bold py-3.5">Bosh sahifa</button></div>
+        </div>
+      </section>
+    </main>
+    <footer class="text-center text-xs text-slate-400 mt-8 pb-3">Registon Word Duel · <span id="footerText">Learn together. Win together.</span></footer>
+  </div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  let words = [], duration = 60, seconds = 60, timerId = null, active = 0, questionNo = 0, used = [], locked = false, scores = [0,0], correct = [0,0], answered = [0,0], names = ['Player 1','Player 2'], running = false, roundAnswered = [false,false], playerDecks = [[],[]], playerIndexes = [0,0], playerWords = [null,null];
+  let lang = 'uz', dark = false;
+  const i18n = {
+    uz:{tagline:'So‘z boyligingni sinab ko‘r',langLabel:'Til',eyebrow:'2 O‘YINCHI · 1 G‘OLIB',heroTitle:'Bilimingni duelda',heroAccent:'isbotla!',heroText:'Inglizcha so‘zlarni tez toping, ball to‘plang va do‘stingiz bilan bellashing.',p1Label:'1-o‘yinchi',p2Label:'2-o‘yinchi',durationLabel:'O‘yin davomiyligi',oneMin:'1 daqiqa',twoMin:'2 daqiqa',translationLabel:'Tarjima tili',uzbek:'O‘zbekcha',russian:'Ruscha',start:'O‘yinni boshlash →',rules:'To‘g‘ri javob +5 ball · Noto‘g‘ri javob −5 ball · Tenglik ham mumkin',wordsTitle:'So‘zlar bazasi',wordsHint:'Har qatorda inglizcha so‘z, o‘zbekcha va ruscha tarjima kiriting.',save:'Ro‘yxatni qo‘llash',import:'CSV/TXT yuklash',demo:'Demo',format:'Format: English | Uzbek | Russian. Kamida 4 ta so‘z kerak.',tipLabel:'DUEL QOIDASI',tipTitle:'Tezlik + aniqlik',tipText:'Har savolda 4 ta variantdan bittasini tanlang. Har bir o‘yinchining ballari alohida hisoblanadi.',correct:'To‘g‘ri',wrong:'Xato',options:'Variant',time:'Qolgan vaqt',prompt:'To‘g‘ri tarjimani tanlang',listen:'Talaffuzni eshitish',quit:'O‘yinni tugatish',question:'Savol',turn:'navbati',winner:'G‘olib',tie:'Durang!',tieSub:'Ajoyib bellashuv — ballar teng!',winSub:'Tabriklaymiz! Zo‘r natija!',player:'O‘yinchi',score:'Ball',accuracy:'Aniqlik',again:'Yana o‘ynash ↻',home:'Bosh sahifa',complete:'O‘YIN TUGADI',none:'Hech kim',correctMsg:'To‘g‘ri! +5 ball',wrongMsg:'Xato! −5 ball',expired:'Vaqt tugadi!',invalid:'Kamida 4 ta to‘liq va takrorlanmagan so‘z kiriting.',loaded:'ta so‘z yuklandi.',wordCount:'ta so‘z',footer:'Birga o‘rganing. Birga g‘alaba qiling.',answer:'Javob berildi',notYet:'Navbat sizda',exitConfirm:'O‘yinni tugatmoqchimisiz?'},
+    en:{tagline:'Challenge your vocabulary',langLabel:'Language',eyebrow:'2 PLAYERS · 1 WINNER',heroTitle:'Prove your skills in a',heroAccent:'word duel!',heroText:'Find English words, score points, and challenge a friend.',p1Label:'Player 1',p2Label:'Player 2',durationLabel:'Game duration',oneMin:'1 minute',twoMin:'2 minutes',translationLabel:'Translation language',uzbek:'Uzbek',russian:'Russian',start:'Start game →',rules:'Correct answer +5 · Wrong answer −5 · Ties are possible',wordsTitle:'Vocabulary bank',wordsHint:'Enter English, Uzbek, and Russian translations on each line.',save:'Apply word list',import:'Import CSV/TXT',demo:'Demo list',format:'Format: English | Uzbek | Russian. At least 4 words required.',tipLabel:'DUEL RULES',tipTitle:'Speed + accuracy',tipText:'Choose one of four options for each word. Each player has an independent score.',correct:'Correct',wrong:'Wrong',options:'Options',time:'Time left',prompt:'Choose the correct translation',listen:'Hear pronunciation',quit:'End game',question:'Question',turn:'turn',winner:'Winner',tie:'It’s a tie!',tieSub:'Great match — scores are equal!',winSub:'Congratulations! Excellent work!',player:'Player',score:'Score',accuracy:'Accuracy',again:'Play again ↻',home:'Home',complete:'MATCH COMPLETE',none:'Nobody',correctMsg:'Correct! +5 points',wrongMsg:'Not quite! −5 points',expired:'Time is up!',invalid:'Enter at least 4 complete, unique words.',loaded:'words loaded.',wordCount:'words',footer:'Learn together. Win together.',answer:'Answered',notYet:'Your turn',exitConfirm:'End this game?',},
+    ru:{tagline:'Проверь свой словарный запас',langLabel:'Язык',eyebrow:'2 ИГРОКА · 1 ПОБЕДИТЕЛЬ',heroTitle:'Докажи свои знания в',heroAccent:'словесной дуэли!',heroText:'Угадывайте английские слова, набирайте очки и соревнуйтесь с другом.',p1Label:'Игрок 1',p2Label:'Игрок 2',durationLabel:'Длительность игры',oneMin:'1 минута',twoMin:'2 минуты',translationLabel:'Язык перевода',uzbek:'Узбекский',russian:'Русский',start:'Начать игру →',rules:'Верно +5 · Ошибка −5 · Возможна ничья',wordsTitle:'Словарь',wordsHint:'В каждой строке укажите английское слово и переводы на узбекский и русский.',save:'Применить список',import:'Загрузить CSV/TXT',demo:'Демо',format:'Формат: English | Uzbek | Russian. Нужно минимум 4 слова.',tipLabel:'ПРАВИЛА ДУЭЛИ',tipTitle:'Скорость + точность',tipText:'Выберите один из четырёх вариантов. Очки каждого игрока считаются отдельно.',correct:'Верно',wrong:'Ошибка',options:'Варианты',time:'Осталось времени',prompt:'Выберите правильный перевод',listen:'Прослушать произношение',quit:'Завершить игру',question:'Вопрос',turn:'ходит',winner:'Победитель',tie:'Ничья!',tieSub:'Отличная игра — одинаковое количество очков!',winSub:'Поздравляем! Отличный результат!',player:'Игрок',score:'Очки',accuracy:'Точность',again:'Играть снова ↻',home:'На главную',complete:'ИГРА ОКОНЧЕНА',none:'Никто',correctMsg:'Верно! +5 очков',wrongMsg:'Неверно! −5 очков',expired:'Время вышло!',invalid:'Введите минимум 4 полных уникальных слова.',loaded:'слов загружено.',wordCount:'слов',footer:'Учитесь вместе. Побеждайте вместе.',answer:'Ответ дан',notYet:'Ваш ход',exitConfirm:'Завершить игру?',}
+  };
+  const t = key => (i18n[lang] && i18n[lang][key]) || i18n.uz[key] || key;
+  function setText(id,key){$(id).textContent=t(key)}
+  function updateLanguage(){
+    document.documentElement.lang=lang;
+    const map = {
+      tagline:'tagline',langLabel:'langLabel',eyebrow:'eyebrow',heroText:'heroText',
+      p1Label:'p1Label',p2Label:'p2Label',durationLabel:'durationLabel',oneMin:'oneMin',
+      twoMin:'twoMin',translationLabel:'translationLabel',
+      start:'startBtn',rules:'rules',wordsTitle:'wordsTitle',wordsHint:'wordsHint',
+      tipLabel:'tipLabel',tipTitle:'tipTitle',tipText:'tipText',correct:'correctLabel',
+      wrong:'wrongLabel',options:'optionsLabel'
+    };
+    Object.entries(map).forEach(([key,id])=>{if($(id))$(id).textContent=t(key)});
+    $('heroTitle').innerHTML=`${t('heroTitle')}<br/><span class="text-registon">${t('heroAccent')}</span>`;
+    $('saveWords').textContent=t('save');$('importLabel').textContent=t('import');$('demoBtn').textContent=t('demo');
+    $('translation').options[0].text=t('uzbek'); $('translation').options[1].text=t('russian');
+    $('wordStatus').textContent=t('format'); $('timeLabel').textContent=t('time'); $('translatePrompt').textContent=t('prompt'); $('listenLabel').textContent=t('listen'); $('quitBtn').textContent=t('quit'); $('resultEyebrow').textContent=t('complete'); $('winnerLabel').textContent=t('winner'); $('tablePlayer').textContent=t('player'); $('tableScore').textContent=t('score'); $('tableAccuracy').textContent=t('accuracy'); $('againBtn').textContent=t('again'); $('homeBtn').textContent=t('home'); $('footerText').textContent=t('footer'); $('wordCount').textContent=words.length+' '+t('wordCount');
+    if(running) renderQuestion();
+  }
+  function wordLines(){return words.map(w=>w.join(' | ')).join('\n')}
+  function setStatus(msg, bad=false){$('wordStatus').textContent=msg;$('wordStatus').className='text-xs mt-3 '+(bad?'text-red-600':'text-emerald-600')}
+  function parseWords(text){
+    const rows=text.split(/\r?\n/).map(line=>line.trim()).filter(Boolean).map(line=>line.split(/[|,\t;]/).map(x=>x.trim()));
+    const parsed=rows.filter(r=>r.length>=3&&r[0]&&r[1]&&r[2]).map(r=>[r[0],r[1],r[2]]);
+    const seen=new Set(); return parsed.filter(w=>{const k=w[0].toLowerCase();if(seen.has(k))return false;seen.add(k);return true});
+  }
+  function loadWordList(list, feedback=true){
+    const parsed=Array.isArray(list)?list:parseWords(list);
+    if(parsed.length<4){if(feedback)setStatus(t('invalid'),true);return false}
+    words=parsed; $('wordInput').value=wordLines();$('wordCount').textContent=words.length+' '+t('wordCount');
+    if(feedback)setStatus(words.length+' '+t('loaded')); return true;
+  }
+  function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+  function fmt(s){return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`}
+  function show(id){['setup','game','results'].forEach(s=>$(s).classList.toggle('hidden',s!==id));window.scrollTo({top:0,behavior:'smooth'})}
+  function startGame(){
+    if(words.length<4){setStatus(t('invalid'),true);return}
+    names=[$('player1').value.trim()||t('p1Label'),$('player2').value.trim()||t('p2Label')];duration=Number(document.querySelector('.duration.border-registon')?.dataset.time||60);seconds=duration;active=0;questionNo=0;used=[];locked=false;roundAnswered=[false,false];running=true;scores=[0,0];correct=[0,0];answered=[0,0];playerDecks=[shuffle(words),shuffle(words)];if(words.length>1&&playerDecks[0].every((w,i)=>w===playerDecks[1][i]))playerDecks[1].push(playerDecks[1].shift());playerIndexes=[0,0];playerWords=[null,null];
+    $('playerOneName').textContent=names[0];$('playerTwoName').textContent=names[1];$('score1').textContent='0';$('score2').textContent='0';$('feedback').textContent='';show('game');renderQuestion();updateTimer();clearInterval(timerId);timerId=setInterval(()=>{seconds--;updateTimer();if(seconds<=0)finishGame()},1000);
+  }
+  function updateTimer(){$('timer').textContent=fmt(Math.max(0,seconds));$('timeBar').style.width=Math.max(0,seconds/duration*100)+'%';$('timeBar').className='h-full rounded-full transition-all '+(seconds<=10?'bg-red-500':'bg-registon');$('timer').className='text-3xl font-black mt-1 tabular-nums '+(seconds<=10?'text-red-600':'text-slate-900')}
+  function nextPlayerWord(player){
+    if(!playerDecks[player].length)playerDecks[player]=shuffle(words);
+    if(playerIndexes[player]>=playerDecks[player].length){playerDecks[player]=shuffle(words);playerIndexes[player]=0;}
+    return playerDecks[player][playerIndexes[player]++];
+  }
+  function renderQuestion(){
+    if(!running)return;
+    $('questionCounter').textContent=t('question')+' '+(Math.min(playerIndexes[0],playerIndexes[1])+1);
+    $('activePlayer').textContent=lang==='ru'?'У каждого игрока своё слово':lang==='en'?'Each player has a separate word':'Har bir o‘yinchida alohida so‘z';
+    $('turn1').textContent='';$('turn2').textContent='';
+    $('choices').innerHTML='';
+    for(let player=0;player<2;player++){
+      const card=document.createElement('div');card.id='playerCard'+player;card.className='rounded-2xl border border-slate-200 bg-slate-50/70 p-4';$('choices').appendChild(card);
+      renderPlayerCard(player);
+    }
+    $('word').textContent=lang==='ru'?'Переведите слово в карточке':lang==='en'?'Translate the word in your card':'Kartochkangizdagi so‘zni tarjima qiling';
+    $('feedback').textContent='';
+  }
+  function renderPlayerCard(player){
+    if(!running)return;
+    const trans=$('translation').value==='ru'?2:1;
+    const currentWord=nextPlayerWord(player);playerWords[player]=currentWord;roundAnswered[player]=false;
+    const correctAnswer=currentWord[trans], card=$('playerCard'+player);if(!card)return;card.innerHTML='';
+    const heading=document.createElement('div');heading.className='flex items-center justify-between gap-2 mb-3';
+    const name=document.createElement('p');name.className='font-extrabold text-slate-800';name.textContent=names[player];
+    const status=document.createElement('span');status.id='playerStatus'+player;status.className='text-xs font-bold text-slate-400';status.textContent=lang==='ru'?'Ждёт ответа':lang==='en'?'Ready to answer':'Javob kutilyapti';heading.append(name,status);
+    const wordLabel=document.createElement('p');wordLabel.className='text-2xl font-black tracking-tight text-slate-900 text-center py-3';wordLabel.textContent=currentWord[0];
+    const optionsBox=document.createElement('div');optionsBox.className='grid grid-cols-1 gap-2';
+    const distractors=shuffle(words.filter(w=>w[0]!==currentWord[0]).map(w=>w[trans])).slice(0,3), options=shuffle([correctAnswer,...distractors]);
+    options.forEach((option,i)=>{const button=document.createElement('button');button.className='choice btn w-full rounded-xl border-2 border-slate-200 bg-white p-3 text-left font-semibold hover:border-blue-300 hover:bg-blue-50';button.textContent=String.fromCharCode(65+i)+'.  '+option;button.addEventListener('click',()=>answer(player,option,correctAnswer,button));optionsBox.appendChild(button)});
+    card.append(heading,wordLabel,optionsBox);
+    $('progress').style.width=(Math.min(playerIndexes[0],playerIndexes[1])/words.length*100)+'%';
+  }
+  function answer(player,option,correctAnswer,button){
+    if(!running||roundAnswered[player])return;
+    roundAnswered[player]=true;
+    const isCorrect=option===correctAnswer;scores[player]+=isCorrect?5:-5;answered[player]++;if(isCorrect)correct[player]++;
+    $('score1').textContent=scores[0];$('score2').textContent=scores[1];
+    const status=$('playerStatus'+player);
+    if(status){status.textContent=isCorrect?(lang==='ru'?'Верно! +5':lang==='en'?'Correct! +5':'To‘g‘ri! +5'):(lang==='ru'?'Ошибка −5':lang==='en'?'Incorrect −5':'Xato −5');status.className='text-xs font-extrabold '+(isCorrect?'text-emerald-600':'text-red-600')}
+    const card=button.closest('.rounded-2xl');[...card.querySelectorAll('button')].forEach(b=>{b.disabled=true;if(b.textContent.endsWith(correctAnswer))b.classList.add('correct');else if(b===button&&!isCorrect)b.classList.add('wrong')});
+    $('turn'+(player+1)).textContent=t('answer');
+    $('feedback').textContent=lang==='ru'?(names[player]+' ответил — следующий вопрос'):lang==='en'?(names[player]+' answered — next word'): (names[player]+' javob berdi — keyingi so‘z');
+    $('feedback').className='text-sm font-bold text-registon';
+    // Advance only this player's question immediately; the other player's card is untouched.
+    setTimeout(()=>{if(running){renderPlayerCard(player);$('turn'+(player+1)).textContent='';$('questionCounter').textContent=t('question')+' '+(Math.min(playerIndexes[0],playerIndexes[1])+1)}},180);
+  }
+  function finishGame(){
+    if(!running)return;running=false;clearInterval(timerId);$('timer').textContent=fmt(Math.max(0,seconds));show('results');
+    const tie=scores[0]===scores[1];const winner=scores[0]>scores[1]?0:1;
+    $('trophy').textContent=tie?'🤝':'🏆';$('resultTitle').textContent=tie?t('tie'):names[winner]+'!';
+    $('resultSub').textContent=tie?t('tieSub'):t('winSub');$('winnerName').textContent=tie?t('tie'):names[winner];$('winnerCard').classList.toggle('hidden',tie);
+    const order=[0,1].sort((a,b)=>scores[b]-scores[a]);$('leaderboard').innerHTML='';
+    order.forEach((p,rank)=>{const acc=answered[p]?Math.round(correct[p]/answered[p]*100):0;const row=document.createElement('div');row.className='grid grid-cols-[1fr_auto_auto] gap-3 items-center px-4 py-4 border-t border-slate-100';const name=document.createElement('span');name.className='font-bold text-slate-700';name.textContent=(rank===0&&!tie?'🥇 ':'')+names[p];const score=document.createElement('span');score.className='font-black text-registon tabular-nums';score.textContent=scores[p]+' pts';const accuracy=document.createElement('span');accuracy.className='text-sm font-semibold text-slate-500 text-right';accuracy.textContent=acc+'%';row.append(name,score,accuracy);$('leaderboard').appendChild(row)});
+  }
+  document.querySelectorAll('.duration').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.duration').forEach(b=>{b.classList.remove('border-registon','bg-blue-50','text-registon');b.classList.add('border-slate-200','bg-white')});btn.classList.add('border-registon','bg-blue-50','text-registon');btn.classList.remove('border-slate-200','bg-white')}));
+  $('language').addEventListener('change',e=>{lang=e.target.value;updateLanguage()});
+  $('saveWords').addEventListener('click',()=>loadWordList($('wordInput').value));
+  const demoWords=[['apple','olma','яблоко'],['book','kitob','книга'],['house','uy','дом'],['water','suv','вода'],['friend','do‘st','друг'],['school','maktab','школа'],['beautiful','chiroyli','красивый'],['quickly','tezda','быстро'],['journey','sayohat','путешествие'],['knowledge','bilim','знание'],['improve','yaxshilamoq','улучшать'],['challenge','qiyinchilik','вызов'],['brave','jasur','смелый'],['quiet','tinch','тихий'],['choose','tanlamoq','выбирать'],['discover','kashf qilmoq','обнаружить'],['careful','ehtiyotkor','осторожный'],['success','muvaffaqiyat','успех'],['weather','ob-havo','погода'],['different','turli','разный']];
+  $('demoBtn').addEventListener('click',()=>{loadWordList(demoWords);});
+  $('fileInput').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{loadWordList(await file.text())}catch{setStatus(t('invalid'),true)}e.target.value=''});
+  $('startBtn').addEventListener('click',startGame);$('quitBtn').addEventListener('click',()=>{if(confirm(t('exitConfirm')))finishGame()});
+  $('againBtn').addEventListener('click',startGame);$('homeBtn').addEventListener('click',()=>{running=false;clearInterval(timerId);show('setup')});
+  $('speakBtn').addEventListener('click',()=>{if(!('speechSynthesis'in window)){setStatus('Speech synthesis is not supported in this browser.',true);return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(currentWord?.[0]||'');u.lang='en-US';speechSynthesis.speak(u)});
+  $('themeBtn').addEventListener('click',()=>{dark=!dark;document.body.classList.toggle('dark',dark);document.body.style.background=dark?'#0f172a':'linear-gradient(135deg,#f6fbff 0%,#edf6fc 55%,#f8fbff 100%)';document.body.style.color=dark?'#e2e8f0':'';document.querySelectorAll('.panel').forEach(p=>{p.style.background=dark?'#1e293b':'';p.style.borderColor=dark?'#334155':''});document.querySelectorAll('input,textarea,select,.choice').forEach(el=>{el.style.background=dark?'#0f172a':'';el.style.color=dark?'#e2e8f0':'';el.style.borderColor=dark?'#334155':''});$('themeBtn').textContent=dark?'☀':'☾'});
+  $('wordInput').value='';updateLanguage();
+})();
+</script>
+</body>
+</html>
